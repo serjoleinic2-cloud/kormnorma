@@ -20,10 +20,11 @@ function clean($value) {
 
 $name  = clean($_POST['ФИО'] ?? '');
 $phone = clean($_POST['Телефон'] ?? '');
-$breed = clean($_POST['Размер собаки'] ?? '');
-$pack  = clean($_POST['Фасовка'] ?? '');
-$qty   = clean($_POST['Количество упаковок'] ?? '');
-$total = clean($_POST['Итоговая сумма'] ?? '');
+$breed   = clean($_POST['Размер собаки'] ?? '');
+$granule = clean($_POST['Размер гранулы'] ?? '');
+$pack    = clean($_POST['Фасовка'] ?? '');
+$qty     = clean($_POST['Количество упаковок'] ?? '');
+$total   = clean($_POST['Итоговая сумма'] ?? '');
 
 if ($name === '' || $phone === '') {
     http_response_code(422);
@@ -37,6 +38,7 @@ $body  = "Новая заявка с сайта normaplus.ru\n\n";
 $body .= "ФИО: {$name}\n";
 $body .= "Телефон: {$phone}\n";
 $body .= "Размер собаки: {$breed}\n";
+$body .= "Размер гранулы: {$granule}\n";
 $body .= "Фасовка: {$pack}\n";
 $body .= "Количество упаковок: {$qty}\n";
 $body .= "Итоговая сумма: {$total}\n";

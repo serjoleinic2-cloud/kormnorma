@@ -178,6 +178,8 @@ const formPack  = document.getElementById('formPack');
 const formQty   = document.getElementById('formQty');
 const totalEl   = document.getElementById('orderTotal');
 
+const granuleSizes = { large: '1,5 см', small: '0,5 см' };
+
 function rebuildPackSelect (breed) {
   if (!formPack) return;
   formPack.innerHTML = '';
@@ -186,6 +188,8 @@ function rebuildPackSelect (breed) {
     const o = new Option(opt.label, opt.value);
     formPack.appendChild(o);
   });
+  const granuleField = document.getElementById('formGranule');
+  if (granuleField) granuleField.value = granuleSizes[breed] || '';
   calcOrderTotal();
 }
 
