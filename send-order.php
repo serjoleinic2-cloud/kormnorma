@@ -69,8 +69,8 @@ if (file_exists($configPath)) {
 }
 
 // --- fallback: локальный mail() хостинга (менее надёжная доставка) ---
-$to = 'a320b@yandex.ru';
-$from = 'webmaster@weokday.ru';
+$to = 'korm@normaplus.ru';
+$from = 'korm@normaplus.ru';
 $encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
 
 $headers  = "From: НОРМАПЛЮС <{$from}>\r\n";

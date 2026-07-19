@@ -1,20 +1,21 @@
 <?php
 /**
  * Минимальный SMTP-клиент без внешних библиотек (composer не нужен).
- * Поддерживает AUTH LOGIN и SSL/STARTTLS — этого достаточно для Яндекс.Почты.
+ * Поддерживает AUTH LOGIN, SSL и plain TCP (без шифрования).
+ * Eurobyte: smtp_secure = 'none', port 25025.
  */
 
 function smtp_send_mail(array $cfg, string $toEmail, string $subject, string $body): array
 {
-    $host    = $cfg['smtp_host'];
-    $port    = $cfg['smtp_port'];
-    $secure  = $cfg['smtp_secure'] ?? 'ssl';
-    $user    = $cfg['smtp_user'];
-    $pass    = $cfg['smtp_pass'];
-    $from    = $cfg['from_email'];
+    $host     = $cfg['smtp_host'];
+    $port     = $cfg['smtp_port'];
+    $secure   = $cfg['smtp_secure'] ?? 'ssl'; // 'ssl' | 'tls' | 'none'
+    $user     = $cfg['smtp_user'];
+    $pass     = $cfg['smtp_pass'];
+    $from     = $cfg['from_email'];
     $fromName = $cfg['from_name'] ?? '';
 
-    $transport = $secure === 'ssl' ? 'ssl://' : '';
+    $transport = ($secure === 'ssl') ? 'ssl://' : '';
     $errno = 0; $errstr = '';
 
     $sock = @stream_socket_client(
@@ -35,7 +36,7 @@ function smtp_send_mail(array $cfg, string $toEmail, string $subject, string $bo
         $data = '';
         while ($line = fgets($sock, 515)) {
             $data .= $line;
-            if (isset($line[3]) && $line[3] === ' ') break; // конец многострочного ответа
+            if (isset($line[3]) && $line[3] === ' ') break;
         }
         return $data;
     };
@@ -45,14 +46,16 @@ function smtp_send_mail(array $cfg, string $toEmail, string $subject, string $bo
     };
 
     $expect = function (string $resp, string $codePrefix) {
-        return strpos($resp, $codePrefix) === 0 || preg_match('/^' . preg_quote($codePrefix, '/') . '/m', $resp);
+        return strpos($resp, $codePrefix) === 0
+            || preg_match('/^' . preg_quote($codePrefix, '/') . '/m', $resp);
     };
 
-    $banner = $read();
+    $read(); // banner
 
     $write('EHLO ' . ($_SERVER['HTTP_HOST'] ?? 'localhost'));
     $ehloResp = $read();
 
+    // STARTTLS upgrade (только для secure='tls')
     if ($secure === 'tls') {
         $write('STARTTLS');
         $tlsResp = $read();
@@ -68,6 +71,7 @@ function smtp_send_mail(array $cfg, string $toEmail, string $subject, string $bo
         $read();
     }
 
+    // AUTH LOGIN
     $write('AUTH LOGIN');
     $authResp = $read();
     if (!$expect($authResp, '334')) {
@@ -120,7 +124,6 @@ function smtp_send_mail(array $cfg, string $toEmail, string $subject, string $bo
     $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
     $headers .= "Content-Transfer-Encoding: 8bit\r\n";
 
-    // экранируем строки, начинающиеся с точки (SMTP dot-stuffing)
     $escapedBody = preg_replace('/^\./m', '..', $body);
 
     $write($headers . "\r\n" . $escapedBody . "\r\n.");
