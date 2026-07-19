@@ -39,7 +39,7 @@ if ($name === '' || $phone === '') {
     exit;
 }
 
-$to      = 'korm@normaplus.ru';
+$to      = 'a320b@yandex.ru'; // ВРЕМЕННО для диагностики, вернуть на korm@normaplus.ru после теста
 $subject = '=?UTF-8?B?' . base64_encode('Новая заявка с сайта НОРМАПЛЮС') . '?=';
 
 $body  = "Новая заявка с сайта normaplus.ru\n\n";
