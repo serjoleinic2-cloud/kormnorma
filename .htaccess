@@ -1,0 +1,5 @@
+# Дополнительная защита: запретить прямой просмотр конфига с паролем
+# и служебных файлов, даже если PHP вдруг перестанет исполняться.
+<FilesMatch "^(mail-config\.php|mail-config\.example\.php)$">
+    Require all denied
+</FilesMatch>
