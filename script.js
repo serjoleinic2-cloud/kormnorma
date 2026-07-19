@@ -1,0 +1,331 @@
+/* =========================================================
+   НОРМАПЛЮС — script.js
+   ========================================================= */
+
+// =========================================================
+// 1. PRODUCT DATA
+// =========================================================
+const PRODUCTS = {
+  large: {
+    title:   'Для крупных и средних пород',
+    granule: '1.5 см',
+    img:     'images/bag-large.png',
+    packs: [
+      { kg: 1,    label: '1 кг',    type: 'Дой-пак ZIP', img: 'images/pack-1kg.png',   price: 550,   badge: null        },
+      { kg: 2.5,  label: '2.5 кг', type: 'Дой-пак ZIP', img: 'images/pack-2-5kg.png', price: 1375,  badge: null        },
+      { kg: 25,   label: '25 кг',  type: 'Мешок',       img: 'images/pack-25kg.png',  price: 12500, badge: '−9%'       }
+    ]
+  },
+  small: {
+    title:   'Для средних и мелких пород',
+    granule: '0.5 см',
+    img:     'images/bag-small.png',
+    packs: [
+      { kg: 1,    label: '1 кг',   type: 'Дой-пак ZIP', img: 'images/pack-1kg.png',   price: 550,  badge: null },
+      { kg: 2.5,  label: '2.5 кг', type: 'Дой-пак ZIP', img: 'images/pack-2-5kg.png', price: 1375, badge: null }
+    ]
+  }
+};
+
+const PACK_IMAGES = {
+  1:    'images/pack-1kg.png',
+  2.5:  'images/pack-2-5kg.png',
+  25:   'images/pack-25kg.png'
+};
+
+let currentBreed = 'large';
+let selectedPackIdx = 0;
+
+// =========================================================
+// 2. PRODUCT SECTION — RENDER
+// =========================================================
+function updateProductImage() {
+  const img = document.getElementById('productImage');
+  if (!img) return;
+  const p    = PRODUCTS[currentBreed];
+  const pack = p.packs[selectedPackIdx] || p.packs[0];
+  img.src = PACK_IMAGES[pack.kg] || p.img;
+}
+
+function renderProduct () {
+  const p    = PRODUCTS[currentBreed];
+  const pack = p.packs[selectedPackIdx] || p.packs[0];
+
+  /* labels */
+  const lblLarge = document.getElementById('label-large');
+  const lblSmall = document.getElementById('label-small');
+  if (lblLarge) { lblLarge.classList.toggle('active', currentBreed === 'large'); }
+  if (lblSmall) { lblSmall.classList.toggle('active', currentBreed === 'small'); }
+
+  /* product image */
+  updateProductImage();
+
+  /* title */
+  const title = document.getElementById('productTitle');
+  if (title) { title.textContent = p.title; }
+
+  /* granule */
+  const gran = document.getElementById('granuleSize');
+  if (gran) { gran.textContent = p.granule; }
+
+  /* pack grid */
+  renderPackGrid(p);
+
+  /* price */
+  updateProductPrice(pack);
+}
+
+function renderPackGrid (p) {
+  const grid = document.getElementById('packGrid');
+  if (!grid) return;
+
+  // 25kg only exists for large breed — adjust cols
+  grid.className = 'pack-grid' + (p.packs.length === 2 ? ' cols-2' : '');
+  grid.innerHTML = '';
+
+  p.packs.forEach((pack, i) => {
+    const card = document.createElement('div');
+    card.className = 'pack-card' + (i === selectedPackIdx ? ' active' : '');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('role', 'button');
+    card.setAttribute('aria-pressed', i === selectedPackIdx ? 'true' : 'false');
+    card.setAttribute('aria-label', pack.label + ' — ' + formatPrice(pack.price));
+
+    card.innerHTML = `
+      ${pack.badge ? `<div class="pack-badge">${pack.badge}</div>` : ''}
+      <img src="${pack.img}" alt="${pack.label}" loading="lazy">
+      <div class="pack-weight">${pack.label}</div>
+      <div class="pack-price">${formatPrice(pack.price)}</div>
+      <div class="pack-type">${pack.type}</div>
+    `;
+
+    const select = (idx) => {
+      if (selectedPackIdx === idx) return;
+      selectedPackIdx = idx;
+      updateProductImage();
+      renderProduct();
+    };
+
+    card.addEventListener('click',    () => select(i));
+    card.addEventListener('keydown',  (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(i); } });
+    grid.appendChild(card);
+  });
+}
+
+function updateProductPrice (pack) {
+  const priceEl = document.getElementById('productPrice');
+  const lineEl  = document.getElementById('packPriceLine');
+  if (!pack) return;
+
+  const perKg = Math.round(pack.price / pack.kg);
+
+  if (priceEl) {
+    priceEl.textContent = formatPrice(pack.price) + '\u00a0₽';
+  }
+  if (lineEl) {
+    const isDiscount = pack.kg >= 15; // 25kg → wholesale
+    lineEl.innerHTML = `${formatPrice(perKg)}\u00a0₽/кг${isDiscount ? ' <span class="discount-tag">оптовая цена</span>' : ''}`;
+  }
+}
+
+// =========================================================
+// 3. BREED TOGGLE
+// =========================================================
+const toggleEl = document.getElementById('breedToggle');
+if (toggleEl) {
+  toggleEl.addEventListener('change', () => {
+    currentBreed    = toggleEl.checked ? 'small' : 'large';
+    selectedPackIdx = 0;
+    const img = document.getElementById('productImage');
+    if (img) img.src = PRODUCTS[currentBreed].img;
+    renderProduct();
+  });
+}
+
+/* clicking label toggles the switch */
+['label-large', 'label-small'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.cursor = 'pointer';
+  el.addEventListener('click', () => {
+    const wantSmall = (id === 'label-small');
+    if (toggleEl) toggleEl.checked = wantSmall;
+    currentBreed    = wantSmall ? 'small' : 'large';
+    selectedPackIdx = 0;
+    const img = document.getElementById('productImage');
+    if (img) img.src = PRODUCTS[currentBreed].img;
+    renderProduct();
+  });
+});
+
+// =========================================================
+// 4. PHONE REVEAL (anti-scraper)
+// =========================================================
+let phoneRevealed = false;
+const revealBtn = document.getElementById('revealPhoneBtn');
+
+if (revealBtn) {
+  revealBtn.addEventListener('click', () => {
+    if (phoneRevealed) return;
+    phoneRevealed = true;
+
+    const displayEl = document.getElementById('phoneDisplay');
+
+    /* build the real phone link */
+    const link = document.createElement('a');
+    link.href  = 'tel:+79509504020';
+    link.className = 'phone-revealed-number';
+    link.textContent = '+7 (950) 950-40-20';
+
+    revealBtn.replaceWith(link);
+
+    /* animate the tap-hint away */
+    const wrap  = document.getElementById('phoneWrap');
+    const hints = wrap ? wrap.querySelectorAll('.phone-tap-hint') : [];
+    hints.forEach(h => { h.style.opacity = '0'; setTimeout(() => h.remove(), 400); });
+  });
+}
+
+// =========================================================
+// 5. ORDER FORM — dynamic pack options + price calculator
+// =========================================================
+const packOptions = {
+  large: [
+    { value: '1|550',      label: '1 кг — Дой-пак ZIP · 550 ₽'           },
+    { value: '2.5|1375',   label: '2,5 кг — Дой-пак ZIP · 1 375 ₽'      },
+    { value: '25|12500',   label: '25 кг — Мешок · 12 500 ₽ (−9%)'      }
+  ],
+  small: [
+    { value: '1|550',      label: '1 кг — Дой-пак ZIP · 550 ₽'      },
+    { value: '2.5|1375',   label: '2,5 кг — Дой-пак ZIP · 1 375 ₽'  }
+  ]
+};
+
+const formBreed = document.getElementById('formBreed');
+const formPack  = document.getElementById('formPack');
+const formQty   = document.getElementById('formQty');
+const totalEl   = document.getElementById('orderTotal');
+
+function rebuildPackSelect (breed) {
+  if (!formPack) return;
+  formPack.innerHTML = '';
+  const opts = packOptions[breed] || packOptions.large;
+  opts.forEach(opt => {
+    const o = new Option(opt.label, opt.value);
+    formPack.appendChild(o);
+  });
+  calcOrderTotal();
+}
+
+function calcOrderTotal () {
+  if (!formPack || !formQty || !totalEl) return;
+  const [kgStr, priceStr] = (formPack.value || '1|550').split('|');
+  const kg      = parseFloat(kgStr)   || 1;
+  const pkgPrice = parseInt(priceStr) || 550;
+  const qty     = Math.max(1, parseInt(formQty.value) || 1);
+  const total   = pkgPrice * qty;
+  const totalKg = kg * qty;
+
+  totalEl.textContent = formatPrice(total) + '\u00a0₽';
+
+  /* green hint when wholesale threshold reached */
+  if (totalKg >= 15) {
+    totalEl.style.color = 'var(--green-2, #6fd391)';
+    totalEl.title = 'Оптовая цена применена — от 15 кг выгоднее!';
+  } else {
+    totalEl.style.color = '';
+    totalEl.title = '';
+  }
+}
+
+if (formBreed) {
+  formBreed.addEventListener('change', () => {
+    rebuildPackSelect(formBreed.value || 'large');
+  });
+  /* init with first valid breed */
+  rebuildPackSelect(formBreed.value || 'large');
+}
+
+if (formPack) formPack.addEventListener('change', calcOrderTotal);
+if (formQty)  { formQty.addEventListener('input', calcOrderTotal); formQty.addEventListener('change', calcOrderTotal); }
+
+// =========================================================
+// 6. ORDER FORM — submit
+// =========================================================
+const orderForm    = document.getElementById('orderForm');
+const successMsg   = document.getElementById('successMessage');
+
+if (orderForm && successMsg) {
+  orderForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    /* simple required-field check */
+    const name  = document.getElementById('formName');
+    const phone = document.getElementById('formPhone');
+    if (name && !name.value.trim()) { name.focus(); return; }
+    if (phone && !phone.value.trim()) { phone.focus(); return; }
+
+    orderForm.style.display    = 'none';
+    successMsg.style.display   = 'flex';
+
+    /* scroll message into view */
+    successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+}
+
+// =========================================================
+// 7. SCROLL-TO-TOP BUTTON
+// =========================================================
+const topBtn = document.getElementById('topBtn');
+
+if (topBtn) {
+  window.addEventListener('scroll', () => {
+    topBtn.style.display = window.scrollY > 600 ? 'flex' : 'none';
+  }, { passive: true });
+
+  topBtn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+// =========================================================
+// 8. HEADER SHRINK ON SCROLL
+// =========================================================
+const header = document.getElementById('header') || document.querySelector('.header');
+if (header) {
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('header--compact', window.scrollY > 80);
+  }, { passive: true });
+}
+
+// =========================================================
+// 9. SMOOTH ENTRANCE ANIMATION (Intersection Observer)
+// =========================================================
+if ('IntersectionObserver' in window) {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.card, .section-head, .product-showcase').forEach(el => {
+    el.classList.add('fade-in-up');
+    observer.observe(el);
+  });
+}
+
+// =========================================================
+// HELPERS
+// =========================================================
+function formatPrice (n) {
+  return n.toLocaleString('ru-RU');
+}
+
+// =========================================================
+// INIT
+// =========================================================
+renderProduct();
+calcOrderTotal();
