@@ -466,13 +466,40 @@ nav a:hover::after{width:100%;}
 .cert-card{
   padding:14px;
   border-radius:var(--r-lg);
+  display:block;
+  text-decoration:none;
+  transition:transform .2s;
 }
+
+.cert-card:hover{transform:translateY(-3px);}
 
 .cert-card img{
   border-radius:20px;
   width:100%;
   aspect-ratio:3/4;
   object-fit:cover;
+}
+
+.cert-card-icon{
+  border-radius:20px;
+  width:100%;
+  aspect-ratio:3/4;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(255,255,255,.04);
+  color:var(--muted);
+  font-family:var(--f-mono);
+  font-weight:700;
+  font-size:18px;
+  letter-spacing:.05em;
+}
+
+.cert-empty-note{
+  text-align:center;
+  color:var(--muted-2);
+  font-size:14.5px;
+  margin-top:10px;
 }
 
 .cert-caption{
@@ -827,6 +854,16 @@ input:checked + .slider::before{
 }
 
 @media(max-width:900px){.order-section{grid-template-columns:1fr;}}
+
+.order-section:has(.order-form-card--solo){
+  grid-template-columns:1fr;
+  justify-items:center;
+}
+
+.order-form-card--solo{
+  width:100%;
+  max-width:560px;
+}
 
 .phone-box,
 .order-form-card{

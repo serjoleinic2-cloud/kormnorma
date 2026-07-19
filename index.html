@@ -193,52 +193,35 @@
 
   <div class="order-section">
 
-    <!-- phone box -->
-    <div class="card phone-box">
-      <span class="eyebrow">Консультация</span>
-      <h2>Позвоните нам</h2>
-      <p class="phone-hint-text">Ответим на вопросы по составу, поможем выбрать фасовку, оформим заказ удобным способом.</p>
-
-      <div class="phone-reveal-wrap" id="phoneWrap">
-        <button class="phone-reveal-btn" id="revealPhoneBtn" type="button">
-          <div class="phone-ring">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 11a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .84h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
-          </div>
-          <span id="phoneDisplay">Показать номер</span>
-        </button>
-        <p class="phone-tap-hint">Нажмите, чтобы увидеть телефон</p>
-      </div>
-
-      <div class="contact-extras">
-        <a href="mailto:Korm.norma@mail.ru" class="contact-link">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          Korm.norma@mail.ru
-        </a>
-      </div>
-    </div>
-
     <!-- order form -->
-    <div class="card order-form-card">
+    <div class="card order-form-card order-form-card--solo">
       <h2>Оставить заявку</h2>
       <p>Оформите заказ — свяжемся для подтверждения и согласования доставки.</p>
 
-      <form id="orderForm">
+      <form id="orderForm" action="https://formsubmit.co/korm@normaplus.ru" method="POST">
+
+        <!-- служебные поля для formsubmit.co -->
+        <input type="hidden" name="_subject" value="Новая заявка с сайта НОРМАПЛЮС">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_captcha" value="false">
+        <!-- honeypot от ботов, должно оставаться пустым -->
+        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
 
         <div class="form-row">
           <div class="field">
             <label for="formName">ФИО</label>
-            <input type="text" id="formName" placeholder="Иванов Иван Иванович" required>
+            <input type="text" id="formName" name="ФИО" placeholder="Иванов Иван Иванович" required>
           </div>
           <div class="field">
             <label for="formPhone">Телефон</label>
-            <input type="tel" id="formPhone" placeholder="+7 (___) ___-__-__" required>
+            <input type="tel" id="formPhone" name="Телефон" placeholder="+7 (___) ___-__-__" required>
           </div>
         </div>
 
         <div class="form-row">
           <div class="field">
             <label for="formBreed">Размер собаки</label>
-            <select id="formBreed" required>
+            <select id="formBreed" name="Размер собаки" required>
               <option value="">Выберите...</option>
               <option value="large">Крупные и средние породы</option>
               <option value="small">Средние и мелкие породы</option>
@@ -246,7 +229,7 @@
           </div>
           <div class="field">
             <label for="formPack">Фасовка</label>
-            <select id="formPack" required>
+            <select id="formPack" name="Фасовка" required>
               <option value="">Сначала выберите породу</option>
             </select>
           </div>
@@ -254,13 +237,14 @@
 
         <div class="field">
           <label for="formQty">Количество упаковок</label>
-          <input type="number" id="formQty" value="1" min="1" max="99">
+          <input type="number" id="formQty" name="Количество упаковок" value="1" min="1" max="99">
         </div>
 
         <div class="order-total">
           <span>Итоговая сумма</span>
           <strong id="orderTotal">— ₽</strong>
         </div>
+        <input type="hidden" id="formTotalHidden" name="Итоговая сумма">
 
         <button type="submit" class="btn btn-primary btn-block">
           Отправить заявку
@@ -459,20 +443,12 @@
     <p>Декларация соответствия № POCC Д-RU.PA01.B.44930/23. ГОСТ Р 55453-2022. Все разрешительные документы в наличии.</p>
   </div>
 
-  <div class="cert-grid">
-    <div class="card cert-card">
-      <img src="images/cert-1.jpg" alt="Декларация соответствия">
-      <div class="cert-caption"><span>Декларация соответствия</span><span>PDF</span></div>
-    </div>
-    <div class="card cert-card">
-      <img src="images/cert-2.jpg" alt="Декларация соответствия №2">
-      <div class="cert-caption"><span>Декларация</span><span>PDF</span></div>
-    </div>
-    <div class="card cert-card">
-      <img src="images/cert-3.jpg" alt="Удостоверение качества">
-      <div class="cert-caption"><span>Удостоверение качества</span><span>PDF</span></div>
-    </div>
+  <div class="cert-grid" id="certGrid">
+    <!-- карточки рендерятся из documents/manifest.json скриптом script.js -->
   </div>
+  <p class="cert-empty-note" id="certEmptyNote" style="display:none;">
+    Документы скоро появятся здесь.
+  </p>
 
 </div>
 </section>
@@ -640,7 +616,6 @@
     <p>ИП Половинко Наталья Александровна</p>
     <p>ИНН 550309228140<br>ОГРНИП 323554300070637</p>
     <p>644527, Омская обл., Омский р-н,<br>п. Ростовка, ул. Сиреневая, д. 5</p>
-    <a href="mailto:Korm.norma@mail.ru" class="footer-link">Korm.norma@mail.ru</a>
   </div>
 
 </div>

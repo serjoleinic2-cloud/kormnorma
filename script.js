@@ -159,34 +159,6 @@ if (toggleEl) {
 });
 
 // =========================================================
-// 4. PHONE REVEAL (anti-scraper)
-// =========================================================
-let phoneRevealed = false;
-const revealBtn = document.getElementById('revealPhoneBtn');
-
-if (revealBtn) {
-  revealBtn.addEventListener('click', () => {
-    if (phoneRevealed) return;
-    phoneRevealed = true;
-
-    const displayEl = document.getElementById('phoneDisplay');
-
-    /* build the real phone link */
-    const link = document.createElement('a');
-    link.href  = 'tel:+79509504020';
-    link.className = 'phone-revealed-number';
-    link.textContent = '+7 (950) 950-40-20';
-
-    revealBtn.replaceWith(link);
-
-    /* animate the tap-hint away */
-    const wrap  = document.getElementById('phoneWrap');
-    const hints = wrap ? wrap.querySelectorAll('.phone-tap-hint') : [];
-    hints.forEach(h => { h.style.opacity = '0'; setTimeout(() => h.remove(), 400); });
-  });
-}
-
-// =========================================================
 // 5. ORDER FORM — dynamic pack options + price calculator
 // =========================================================
 const packOptions = {
@@ -250,13 +222,14 @@ if (formPack) formPack.addEventListener('change', calcOrderTotal);
 if (formQty)  { formQty.addEventListener('input', calcOrderTotal); formQty.addEventListener('change', calcOrderTotal); }
 
 // =========================================================
-// 6. ORDER FORM — submit
+// 6. ORDER FORM — submit (sends to korm@normaplus.ru via formsubmit.co)
 // =========================================================
-const orderForm    = document.getElementById('orderForm');
-const successMsg   = document.getElementById('successMessage');
+const orderForm      = document.getElementById('orderForm');
+const successMsg     = document.getElementById('successMessage');
+const formTotalHidden = document.getElementById('formTotalHidden');
 
 if (orderForm && successMsg) {
-  orderForm.addEventListener('submit', (e) => {
+  orderForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     /* simple required-field check */
@@ -265,11 +238,31 @@ if (orderForm && successMsg) {
     if (name && !name.value.trim()) { name.focus(); return; }
     if (phone && !phone.value.trim()) { phone.focus(); return; }
 
-    orderForm.style.display    = 'none';
-    successMsg.style.display   = 'flex';
+    /* carry the computed total along in the email */
+    if (formTotalHidden && totalEl) {
+      formTotalHidden.value = totalEl.textContent.trim();
+    }
 
-    /* scroll message into view */
-    successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const submitBtn = orderForm.querySelector('button[type="submit"]');
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Отправляем…'; }
+
+    try {
+      const formData = new FormData(orderForm);
+      const res = await fetch(orderForm.action, {
+        method: 'POST',
+        body: formData,
+        headers: { Accept: 'application/json' }
+      });
+
+      if (!res.ok) throw new Error('Request failed: ' + res.status);
+
+      orderForm.style.display  = 'none';
+      successMsg.style.display = 'flex';
+      successMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (err) {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Отправить заявку'; }
+      alert('Не удалось отправить заявку. Проверьте соединение и попробуйте ещё раз, либо позвоните нам напрямую.');
+    }
   });
 }
 
@@ -316,6 +309,49 @@ if ('IntersectionObserver' in window) {
     observer.observe(el);
   });
 }
+
+// =========================================================
+// 10. DOCUMENTS / CERTIFICATES — auto-loaded from documents/manifest.json
+// =========================================================
+async function renderDocuments () {
+  const grid = document.getElementById('certGrid');
+  const emptyNote = document.getElementById('certEmptyNote');
+  if (!grid) return;
+
+  try {
+    const res = await fetch('documents/manifest.json', { cache: 'no-store' });
+    if (!res.ok) throw new Error('manifest not found');
+    const items = await res.json();
+
+    if (!Array.isArray(items) || items.length === 0) {
+      grid.innerHTML = '';
+      if (emptyNote) emptyNote.style.display = 'block';
+      return;
+    }
+
+    if (emptyNote) emptyNote.style.display = 'none';
+
+    grid.innerHTML = items.map((doc) => {
+      const href = 'documents/' + encodeURIComponent(doc.file);
+      const isImage = /^(JPG|JPEG|PNG|WEBP)$/i.test(doc.type);
+      const preview = isImage
+        ? `<img src="${href}" alt="${doc.title}" loading="lazy">`
+        : `<div class="cert-card-icon">${doc.type}</div>`;
+
+      return `
+        <a class="card cert-card" href="${href}" target="_blank" rel="noopener">
+          ${preview}
+          <div class="cert-caption"><span>${doc.title}</span><span>${doc.type}</span></div>
+        </a>
+      `;
+    }).join('');
+  } catch (err) {
+    grid.innerHTML = '';
+    if (emptyNote) emptyNote.style.display = 'block';
+  }
+}
+
+renderDocuments();
 
 // =========================================================
 // HELPERS
