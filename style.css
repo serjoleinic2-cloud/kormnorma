@@ -219,7 +219,69 @@ nav a:hover::after{width:100%;}
 @media(max-width:980px){
   nav{display:none;}
   .header{padding:15px 5%;}
+  .burger{display:flex;}
 }
+
+.burger{
+  display:none;
+  flex-direction:column;
+  justify-content:center;
+  gap:5px;
+  width:38px;
+  height:38px;
+  background:transparent;
+  border:1px solid var(--border-strong);
+  border-radius:10px;
+  cursor:pointer;
+  padding:0;
+  align-items:center;
+}
+
+.burger span{
+  display:block;
+  width:18px;
+  height:2px;
+  background:var(--cream);
+  border-radius:2px;
+  transition:transform .25s var(--ease), opacity .25s var(--ease);
+}
+
+.burger[aria-expanded="true"] span:nth-child(1){transform:translateY(7px) rotate(45deg);}
+.burger[aria-expanded="true"] span:nth-child(2){opacity:0;}
+.burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-7px) rotate(-45deg);}
+
+.mobile-nav-overlay{
+  position:fixed;
+  inset:0;
+  z-index:999;
+  background:rgba(8,9,7,.97);
+  backdrop-filter:blur(10px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .3s var(--ease), visibility .3s var(--ease);
+}
+
+.mobile-nav-overlay.is-open{opacity:1;visibility:visible;}
+
+.mobile-nav{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:28px;
+}
+
+.mobile-nav a{
+  text-decoration:none;
+  color:var(--cream);
+  font-family:var(--f-display);
+  font-size:26px;
+  font-weight:600;
+}
+
+body.nav-open{overflow:hidden;}
 
 /* =========================================================
    BUTTONS

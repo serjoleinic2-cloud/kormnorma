@@ -254,7 +254,8 @@ if (orderForm && successMsg) {
         headers: { Accept: 'application/json' }
       });
 
-      if (!res.ok) throw new Error('Request failed: ' + res.status);
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data || data.ok !== true) throw new Error('send failed');
 
       orderForm.style.display  = 'none';
       successMsg.style.display = 'flex';
@@ -319,7 +320,7 @@ async function renderDocuments () {
   if (!grid) return;
 
   try {
-    const res = await fetch('documents/manifest.json', { cache: 'no-store' });
+    const res = await fetch('documents-list.php', { cache: 'no-store' });
     if (!res.ok) throw new Error('manifest not found');
     const items = await res.json();
 
@@ -352,6 +353,31 @@ async function renderDocuments () {
 }
 
 renderDocuments();
+
+// =========================================================
+// 11. MOBILE BURGER MENU
+// =========================================================
+const burgerBtn   = document.getElementById('burgerBtn');
+const mobileNav   = document.getElementById('mobileNavOverlay');
+
+function closeMobileNav () {
+  if (!burgerBtn || !mobileNav) return;
+  mobileNav.classList.remove('is-open');
+  burgerBtn.setAttribute('aria-expanded', 'false');
+  document.body.classList.remove('nav-open');
+}
+
+if (burgerBtn && mobileNav) {
+  burgerBtn.addEventListener('click', () => {
+    const isOpen = mobileNav.classList.toggle('is-open');
+    burgerBtn.setAttribute('aria-expanded', String(isOpen));
+    document.body.classList.toggle('nav-open', isOpen);
+  });
+
+  mobileNav.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', closeMobileNav);
+  });
+}
 
 // =========================================================
 // HELPERS

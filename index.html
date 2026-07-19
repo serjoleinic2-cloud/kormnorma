@@ -23,7 +23,20 @@
     <a href="#order">Заказать</a>
   </nav>
   <a href="#order" class="header-call">Заказать</a>
+  <button class="burger" id="burgerBtn" aria-label="Меню" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
 </header>
+<div class="mobile-nav-overlay" id="mobileNavOverlay">
+  <nav class="mobile-nav">
+    <a href="#advantages">О корме</a>
+    <a href="#product">Выбрать</a>
+    <a href="#certificates">Документы</a>
+    <a href="#reviews">Отзывы</a>
+    <a href="#delivery">Доставка</a>
+    <a href="#order">Заказать</a>
+  </nav>
+</div>
 
 <!-- ===== HERO ===== -->
 <section class="hero" id="top">
@@ -198,12 +211,8 @@
       <h2>Оставить заявку</h2>
       <p>Оформите заказ — свяжемся для подтверждения и согласования доставки.</p>
 
-      <form id="orderForm" action="https://formsubmit.co/korm@normaplus.ru" method="POST">
+      <form id="orderForm" action="send-order.php" method="POST">
 
-        <!-- служебные поля для formsubmit.co -->
-        <input type="hidden" name="_subject" value="Новая заявка с сайта НОРМАПЛЮС">
-        <input type="hidden" name="_template" value="table">
-        <input type="hidden" name="_captcha" value="false">
         <!-- honeypot от ботов, должно оставаться пустым -->
         <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
 
