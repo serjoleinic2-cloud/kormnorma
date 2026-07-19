@@ -48,7 +48,7 @@ $body .= "Итоговая сумма: {$total}\n";
 $body .= "\nВремя заявки: " . date('d.m.Y H:i:s') . "\n";
 
 $to   = 'korm@normaplus.ru';
-$from = 'webmaster@weokday.ru';
+$from = 'korm@normaplus.ru';
 
 $encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
 
