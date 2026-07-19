@@ -1,8 +1,4 @@
 <?php
-/**
- * Принимает POST от формы заявки и отправляет письмо через mail() хостинга.
- */
-
 header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -11,7 +7,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// honeypot — если заполнено, это бот
 if (!empty($_POST['_honey'])) {
     echo json_encode(['ok' => true]);
     exit;
@@ -47,21 +42,15 @@ $body .= "Количество упаковок: {$qty}\n";
 $body .= "Итоговая сумма: {$total}\n";
 $body .= "\nВремя заявки: " . date('d.m.Y H:i:s') . "\n";
 
-$to   = 'a320b@yandex.ru';
-$from = 'korm@normaplus.ru';
+require_once __DIR__ . '/smtp-mailer.php';
+$cfg = require __DIR__ . '/mail-config.php';
 
-$encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
+$result = smtp_send_mail($cfg, $cfg['to_email'], $subject, $body);
 
-$headers  = "From: =?UTF-8?B?" . base64_encode('НОРМАПЛЮС') . "?= <{$from}>\r\n";
-$headers .= "Reply-To: {$from}\r\n";
-$headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
-$headers .= "MIME-Version: 1.0\r\n";
-
-$sent = @mail($to, $encodedSubject, $body, $headers);
-
-if ($sent) {
+if ($result['ok']) {
     echo json_encode(['ok' => true]);
 } else {
+    error_log('SMTP send failed: ' . $result['error']);
     http_response_code(500);
-    echo json_encode(['ok' => false, 'error' => 'mail_failed']);
+    echo json_encode(['ok' => false, 'error' => $result['error']]);
 }
