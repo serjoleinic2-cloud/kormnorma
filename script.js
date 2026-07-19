@@ -221,6 +221,21 @@ if (formBreed) {
 if (formPack) formPack.addEventListener('change', calcOrderTotal);
 if (formQty)  { formQty.addEventListener('input', calcOrderTotal); formQty.addEventListener('change', calcOrderTotal); }
 
+const goToOrderBtn = document.getElementById('goToOrderBtn');
+if (goToOrderBtn && formBreed && formPack) {
+  goToOrderBtn.addEventListener('click', () => {
+    /* подставляем выбранную породу и фасовку из блока "Подберите корм" */
+    formBreed.value = currentBreed;
+    rebuildPackSelect(currentBreed);
+
+    const chosenPack = PRODUCTS[currentBreed].packs[selectedPackIdx] || PRODUCTS[currentBreed].packs[0];
+    const matchOpt = Array.from(formPack.options).find(o => parseFloat(o.value.split('|')[0]) === chosenPack.kg);
+    if (matchOpt) formPack.value = matchOpt.value;
+
+    calcOrderTotal();
+  });
+}
+
 // =========================================================
 // 6. ORDER FORM — submit (sends to korm@normaplus.ru via formsubmit.co)
 // =========================================================
