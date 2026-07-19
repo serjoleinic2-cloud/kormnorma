@@ -267,6 +267,26 @@ if (orderForm && successMsg) {
       formTotalHidden.value = totalEl.textContent.trim();
     }
 
+    /* заполняем скрытые поля читаемыми значениями */
+    const breedNames = { large: 'Крупные и средние породы', small: 'Средние и мелкие породы' };
+    const breedHidden = document.getElementById('formBreedHidden');
+    if (breedHidden) breedHidden.value = breedNames[currentBreed] || currentBreed;
+
+    const granuleSel = document.getElementById('formGranuleSelect');
+    const granuleHidden = document.getElementById('formGranuleHidden');
+    if (granuleSel && granuleHidden) granuleHidden.value = granuleSel.value;
+
+    const packSel = document.getElementById('formPack');
+    const packHidden = document.getElementById('formPackHidden');
+    if (packSel && packHidden) {
+      const [kg, price] = (packSel.value || '').split('|');
+      if (kg && price) {
+        packHidden.value = kg + ' кг — ' + parseInt(price).toLocaleString('ru-RU') + ' ₽';
+      } else {
+        packHidden.value = packSel.options[packSel.selectedIndex]?.text || '';
+      }
+    }
+
     const submitBtn = orderForm.querySelector('button[type="submit"]');
     if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Отправляем…'; }
 

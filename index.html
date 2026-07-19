@@ -230,25 +230,28 @@
         <div class="form-row">
           <div class="field">
             <label for="formBreed">Размер собаки</label>
-            <select id="formBreed" name="Размер собаки" required>
+            <select id="formBreed" required>
               <option value="">Выберите...</option>
               <option value="large">Крупные и средние породы</option>
               <option value="small">Средние и мелкие породы</option>
             </select>
+            <input type="hidden" name="Размер собаки" id="formBreedHidden">
           </div>
           <div class="field">
             <label for="formGranuleSelect">Размер гранулы</label>
-            <select id="formGranuleSelect" name="Размер гранулы">
+            <select id="formGranuleSelect" required>
               <option value="1,5 см">1,5 см — крупные и средние породы</option>
               <option value="0,5 см">0,5 см — средние и мелкие породы</option>
             </select>
+            <input type="hidden" name="Размер гранулы" id="formGranuleHidden">
           </div>
         </div>
         <div class="field">
           <label for="formPack">Фасовка</label>
-          <select id="formPack" name="Фасовка" required>
+          <select id="formPack" required>
             <option value="">Сначала выберите породу</option>
           </select>
+          <input type="hidden" name="Фасовка" id="formPackHidden">
         </div>
 
         <div class="field">

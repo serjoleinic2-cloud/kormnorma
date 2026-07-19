@@ -22,17 +22,9 @@ $name  = clean($_POST['ФИО'] ?? '');
 $phone = clean($_POST['Телефон'] ?? '');
 $breed   = clean($_POST['Размер собаки'] ?? '');
 $granule = clean($_POST['Размер гранулы'] ?? '');
-$packRaw = clean($_POST['Фасовка'] ?? '');
+$pack    = clean($_POST['Фасовка'] ?? '');
 $qty     = clean($_POST['Количество упаковок'] ?? '');
 $total   = clean($_POST['Итоговая сумма'] ?? '');
-
-// Фасовка приходит как "1|550" — преобразуем в читаемый вид
-if (strpos($packRaw, '|') !== false) {
-    [$kg, $price] = explode('|', $packRaw, 2);
-    $pack = $kg . ' кг — ' . number_format((int)$price, 0, '', ' ') . ' ₽';
-} else {
-    $pack = $packRaw;
-}
 
 if ($name === '' || $phone === '') {
     http_response_code(422);
