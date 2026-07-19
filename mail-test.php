@@ -24,7 +24,7 @@ $smtpHost = ini_get('SMTP');
 echo "<p><b>SMTP (php.ini):</b> " . htmlspecialchars($smtpHost ?: '(не задан)') . "</p>";
 
 if ($mailFuncExists) {
-    $to = 'a320b@yandex.ru'; // ВРЕМЕННО для диагностики
+    $to = 'korm@normaplus.ru'; // ВРЕМЕННО для диагностики
     $subject = 'Тест почты с сайта normaplus.ru';
     $body = 'Если вы видите это письмо — mail() на хостинге работает и письмо доходит. Время отправки: ' . date('d.m.Y H:i:s');
 
