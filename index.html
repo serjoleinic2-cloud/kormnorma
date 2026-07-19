@@ -237,11 +237,18 @@
             </select>
           </div>
           <div class="field">
-            <label for="formPack">Фасовка</label>
-            <select id="formPack" name="Фасовка" required>
-              <option value="">Сначала выберите породу</option>
+            <label for="formGranuleSelect">Размер гранулы</label>
+            <select id="formGranuleSelect" name="Размер гранулы">
+              <option value="1,5 см">1,5 см — крупные и средние породы</option>
+              <option value="0,5 см">0,5 см — средние и мелкие породы</option>
             </select>
           </div>
+        </div>
+        <div class="field">
+          <label for="formPack">Фасовка</label>
+          <select id="formPack" name="Фасовка" required>
+            <option value="">Сначала выберите породу</option>
+          </select>
         </div>
 
         <div class="field">
@@ -254,7 +261,6 @@
           <strong id="orderTotal">— ₽</strong>
         </div>
         <input type="hidden" id="formTotalHidden" name="Итоговая сумма">
-        <input type="hidden" id="formGranule" name="Размер гранулы">
 
         <div class="slider-captcha" id="sliderCaptcha">
           <div class="slider-captcha-track" id="sliderTrack">
