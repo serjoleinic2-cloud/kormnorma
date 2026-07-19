@@ -232,6 +232,11 @@ if (orderForm && successMsg) {
   orderForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    /* защита от спама — слайдер должен быть перетащен до конца */
+    if (typeof captchaVerified !== 'undefined' && !captchaVerified) {
+      return;
+    }
+
     /* simple required-field check */
     const name  = document.getElementById('formName');
     const phone = document.getElementById('formPhone');
@@ -376,6 +381,100 @@ if (burgerBtn && mobileNav) {
 
   mobileNav.querySelectorAll('a').forEach((link) => {
     link.addEventListener('click', closeMobileNav);
+  });
+}
+
+// =========================================================
+// 12. SLIDER CAPTCHA (drag the dog to confirm you're human)
+// =========================================================
+const sliderCaptcha = document.getElementById('sliderCaptcha');
+const sliderTrack    = document.getElementById('sliderTrack');
+const sliderFill     = document.getElementById('sliderFill');
+const sliderHandle   = document.getElementById('sliderHandle');
+const sliderLabel    = document.getElementById('sliderLabel');
+const submitOrderBtn = document.getElementById('submitOrderBtn');
+
+let captchaVerified = false;
+
+if (sliderCaptcha && sliderTrack && sliderHandle && submitOrderBtn) {
+  let dragging = false;
+  const handleSize = 46;
+  const edgePad = 3;
+
+  function maxTravel () {
+    return sliderTrack.clientWidth - handleSize - edgePad * 2;
+  }
+
+  function setHandlePos (x) {
+    const max = maxTravel();
+    const clamped = Math.max(0, Math.min(x, max));
+    sliderHandle.style.left = (clamped + edgePad) + 'px';
+    sliderFill.style.width  = (clamped + handleSize / 2 + edgePad) + 'px';
+    return clamped >= max - 2;
+  }
+
+  function completeCaptcha () {
+    captchaVerified = true;
+    sliderCaptcha.classList.add('is-complete');
+    sliderLabel.textContent = 'Готово ✓ 100%';
+    sliderHandle.textContent = '✓';
+    submitOrderBtn.disabled = false;
+  }
+
+  function resetCaptcha () {
+    captchaVerified = false;
+    sliderCaptcha.classList.remove('is-complete');
+    sliderLabel.textContent = 'Перетащите собачку, чтобы подтвердить →';
+    sliderHandle.textContent = '🐶';
+    sliderHandle.style.left = edgePad + 'px';
+    sliderFill.style.width  = '0';
+    submitOrderBtn.disabled = true;
+  }
+
+  function pointerX (e) {
+    const rect = sliderTrack.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    return clientX - rect.left - handleSize / 2;
+  }
+
+  function onDragStart (e) {
+    if (captchaVerified) return;
+    dragging = true;
+    e.preventDefault();
+  }
+
+  function onDragMove (e) {
+    if (!dragging || captchaVerified) return;
+    const done = setHandlePos(pointerX(e));
+    if (done) {
+      dragging = false;
+      completeCaptcha();
+    }
+  }
+
+  function onDragEnd () {
+    if (!dragging) return;
+    dragging = false;
+    if (!captchaVerified) resetCaptcha();
+  }
+
+  sliderHandle.addEventListener('mousedown', onDragStart);
+  sliderHandle.addEventListener('touchstart', onDragStart, { passive: false });
+  window.addEventListener('mousemove', onDragMove);
+  window.addEventListener('touchmove', onDragMove, { passive: false });
+  window.addEventListener('mouseup', onDragEnd);
+  window.addEventListener('touchend', onDragEnd);
+
+  resetCaptcha();
+}
+
+// =========================================================
+// 13. "ЗАКАЗАТЬ ЕЩЁ" — reload the page like F5
+// =========================================================
+const orderAgainBtn = document.getElementById('orderAgainBtn');
+if (orderAgainBtn) {
+  orderAgainBtn.addEventListener('click', () => {
+    window.location.reload();
   });
 }
 

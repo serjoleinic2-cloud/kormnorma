@@ -255,7 +255,15 @@
         </div>
         <input type="hidden" id="formTotalHidden" name="Итоговая сумма">
 
-        <button type="submit" class="btn btn-primary btn-block">
+        <div class="slider-captcha" id="sliderCaptcha">
+          <div class="slider-captcha-track" id="sliderTrack">
+            <div class="slider-captcha-fill" id="sliderFill"></div>
+            <span class="slider-captcha-label" id="sliderLabel">Перетащите собачку, чтобы подтвердить →</span>
+            <button type="button" class="slider-captcha-handle" id="sliderHandle" aria-label="Перетащите вправо">🐶</button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block" id="submitOrderBtn" disabled>
           Отправить заявку
         </button>
 
@@ -264,6 +272,9 @@
       <div id="successMessage">
         <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/></svg>
         Спасибо за заказ! Мы с вами свяжемся.
+        <button type="button" class="btn btn-primary btn-block" id="orderAgainBtn" style="margin-top:18px;">
+          Заказать ещё
+        </button>
       </div>
 
     </div>
