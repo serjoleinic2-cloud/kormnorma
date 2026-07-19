@@ -1,9 +1,6 @@
 <?php
 /**
- * Принимает POST от формы заявки и отправляет письмо.
- * Основной способ — авторизованный SMTP (см. mail-config.php, создаётся
- * вручную на сервере, не хранится в git). Если конфига нет — откатывается
- * на встроенный mail() хостинга (менее надёжно доставляется).
+ * Принимает POST от формы заявки и отправляет письмо через mail() хостинга.
  */
 
 header('Content-Type: application/json; charset=utf-8');
@@ -14,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-// honeypot-поле — если заполнено, это бот
+// honeypot — если заполнено, это бот
 if (!empty($_POST['_honey'])) {
     echo json_encode(['ok' => true]);
     exit;
@@ -50,30 +47,12 @@ $body .= "Количество упаковок: {$qty}\n";
 $body .= "Итоговая сумма: {$total}\n";
 $body .= "\nВремя заявки: " . date('d.m.Y H:i:s') . "\n";
 
-$configPath = __DIR__ . '/mail-config.php';
+$to   = 'korm@normaplus.ru';
+$from = 'webmaster@weokday.ru';
 
-if (file_exists($configPath)) {
-    require_once __DIR__ . '/smtp-mailer.php';
-    $cfg = require $configPath;
-
-    $result = smtp_send_mail($cfg, $cfg['to_email'], $subject, $body);
-
-    if ($result['ok']) {
-        echo json_encode(['ok' => true]);
-    } else {
-        error_log('SMTP send failed: ' . $result['error']);
-        http_response_code(500);
-        echo json_encode(['ok' => false, 'error' => 'smtp_failed']);
-    }
-    exit;
-}
-
-// --- fallback: локальный mail() хостинга (менее надёжная доставка) ---
-$to = 'korm@normaplus.ru';
-$from = 'korm@normaplus.ru';
 $encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
 
-$headers  = "From: НОРМАПЛЮС <{$from}>\r\n";
+$headers  = "From: =?UTF-8?B?" . base64_encode('НОРМАПЛЮС') . "?= <{$from}>\r\n";
 $headers .= "Reply-To: {$from}\r\n";
 $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
 $headers .= "MIME-Version: 1.0\r\n";
