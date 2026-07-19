@@ -180,6 +180,31 @@ const totalEl   = document.getElementById('orderTotal');
 
 const granuleSizes = { large: '1,5 см', small: '0,5 см' };
 
+function syncHiddenFields(breed) {
+  const breedNames = { large: 'Крупные и средние породы', small: 'Средние и мелкие породы' };
+  const breedHidden = document.getElementById('formBreedHidden');
+  if (breedHidden) breedHidden.value = breedNames[breed] || breed;
+
+  const granuleHidden = document.getElementById('formGranuleHidden');
+  if (granuleHidden) granuleHidden.value = granuleSizes[breed] || '1,5 см';
+}
+
+function syncPackHidden() {
+  const packSel = document.getElementById('formPack');
+  const packHidden = document.getElementById('formPackHidden');
+  if (!packSel || !packHidden) return;
+  const [kg, price] = (packSel.value || '').split('|');
+  if (kg && price) {
+    packHidden.value = kg + ' кг — ' + parseInt(price).toLocaleString('ru-RU') + ' ₽';
+  }
+}
+
+function syncTotalHidden() {
+  const totalEl2 = document.getElementById('orderTotal');
+  const totalHidden = document.getElementById('formTotalHidden');
+  if (totalEl2 && totalHidden) totalHidden.value = totalEl2.textContent.trim();
+}
+
 function rebuildPackSelect (breed) {
   if (!formPack) return;
   formPack.innerHTML = '';
@@ -190,7 +215,10 @@ function rebuildPackSelect (breed) {
   });
   const granuleSel = document.getElementById('formGranuleSelect');
   if (granuleSel) granuleSel.value = granuleSizes[breed] || '1,5 см';
+  syncHiddenFields(breed);
   calcOrderTotal();
+  syncPackHidden();
+  syncTotalHidden();
 }
 
 function calcOrderTotal () {
@@ -222,8 +250,8 @@ if (formBreed) {
   rebuildPackSelect(formBreed.value || 'large');
 }
 
-if (formPack) formPack.addEventListener('change', calcOrderTotal);
-if (formQty)  { formQty.addEventListener('input', calcOrderTotal); formQty.addEventListener('change', calcOrderTotal); }
+if (formPack) formPack.addEventListener('change', () => { calcOrderTotal(); syncPackHidden(); syncTotalHidden(); });
+if (formQty)  { formQty.addEventListener('input', () => { calcOrderTotal(); syncTotalHidden(); }); formQty.addEventListener('change', () => { calcOrderTotal(); syncTotalHidden(); }); }
 
 const goToOrderBtn = document.getElementById('goToOrderBtn');
 if (goToOrderBtn && formBreed && formPack) {
@@ -262,30 +290,10 @@ if (orderForm && successMsg) {
     if (name && !name.value.trim()) { name.focus(); return; }
     if (phone && !phone.value.trim()) { phone.focus(); return; }
 
-    /* carry the computed total along in the email */
-    if (formTotalHidden && totalEl) {
-      formTotalHidden.value = totalEl.textContent.trim();
-    }
-
-    /* заполняем скрытые поля читаемыми значениями */
-    const breedNames = { large: 'Крупные и средние породы', small: 'Средние и мелкие породы' };
-    const breedHidden = document.getElementById('formBreedHidden');
-    if (breedHidden) breedHidden.value = breedNames[currentBreed] || currentBreed;
-
-    const granuleSel = document.getElementById('formGranuleSelect');
-    const granuleHidden = document.getElementById('formGranuleHidden');
-    if (granuleSel && granuleHidden) granuleHidden.value = granuleSel.value;
-
-    const packSel = document.getElementById('formPack');
-    const packHidden = document.getElementById('formPackHidden');
-    if (packSel && packHidden) {
-      const [kg, price] = (packSel.value || '').split('|');
-      if (kg && price) {
-        packHidden.value = kg + ' кг — ' + parseInt(price).toLocaleString('ru-RU') + ' ₽';
-      } else {
-        packHidden.value = packSel.options[packSel.selectedIndex]?.text || '';
-      }
-    }
+    /* финальная синхронизация перед отправкой */
+    syncHiddenFields(currentBreed);
+    syncPackHidden();
+    syncTotalHidden();
 
     const submitBtn = orderForm.querySelector('button[type="submit"]');
     if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Отправляем…'; }
