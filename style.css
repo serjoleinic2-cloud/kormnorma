@@ -1252,10 +1252,16 @@ footer{
 }
 
 @media(max-width:600px){
-  .hero h1{font-size:46px;}
-  .hero h2{font-size:19px;}
-  .section-head h2{font-size:30px;}
-  .floating-bag{width:230px;}
+  .hero{padding:120px 20px 0;min-height:auto;}
+  .hero-inner{gap:24px;padding-bottom:60px;}
+  .hero h1{font-size:38px;}
+  .hero h2{font-size:17px;max-width:100%;}
+  .hero p{font-size:15px;max-width:100%;}
+  .hero-left{gap:16px;max-width:100%;}
+  .hero-bullets{flex-direction:column;align-items:center;gap:8px;}
+  .hero-buttons{justify-content:center;}
+  .floating-bag{width:200px;}
+  .section-head h2{font-size:28px;}
 }
 
 /* =========================================================
